@@ -2,6 +2,8 @@ namespace Test;
 
 public abstract class SmartHomeSystem : IMenuDisplayable //
 {
+    public bool isOnSystem = false;
+    public bool ConsumptionIsOk;
     private int maxModulesQuantity = 10;
     public string Brand { get; set; }
     public string Name { get; set; }
@@ -9,8 +11,8 @@ public abstract class SmartHomeSystem : IMenuDisplayable //
     public int SystemConsumptionLimit { get; set; }
     private float modulesPowerConsumption;
     private float maxModulesPowerLimit;
-    
-    public Tester Tester {get; set;}
+
+    public Tester Tester { get; set; }
 
     public float MaxModulesPowerLimit
     {
@@ -45,7 +47,7 @@ public abstract class SmartHomeSystem : IMenuDisplayable //
         Name = name;
         SerialNumber = serialNumber;
         SystemConsumptionLimit = systemConsumptionLimit;
-        Tester  = tester;
+        Tester = tester;
     }
 
 
@@ -104,7 +106,7 @@ public abstract class SmartHomeSystem : IMenuDisplayable //
                               "превышает максимальное ограничение потребления в системе");
         }
 
-        return null; /////////////////////! вызывает Exaption
+        return null; /////////////////////! вызывает исключение
     }
 // удаление модуля1
 
@@ -170,17 +172,30 @@ public abstract class SmartHomeSystem : IMenuDisplayable //
 // Проверка энергопотребления
     public void CheckConsumption()
     {
-        Console.WriteLine("В системе используется: " + TotalConsumption());
-
-        if (TotalConsumption() > SystemConsumptionLimit)
+        if (isOnSystem)
         {
-            Console.WriteLine("Внимание!! Превышение энергопотребления!!");
-            Console.WriteLine(
-                $"В системе {Modules.Count} модулей. Используется {TotalConsumption()} / {SystemConsumptionLimit}");
+            Console.WriteLine("В системе используется: " + TotalConsumption());
+
+            if (TotalConsumption() > SystemConsumptionLimit)
+            {
+                Console.WriteLine("Внимание!! Превышение энергопотребления!!");
+                Console.WriteLine(
+                    $"В системе {Modules.Count} модулей. Используется {TotalConsumption()} / {SystemConsumptionLimit}");
+                ConsumptionIsOk = false;
+                Console.WriteLine("Выключение системы");
+                isOnSystem = false;
+            }
+            else
+            {
+                Console.WriteLine(
+                    $"Энергопотребление в пределах нормы {TotalConsumption()} / {SystemConsumptionLimit}");
+                ConsumptionIsOk = true;
+                isOnSystem = true;
+            }
         }
         else
         {
-            Console.WriteLine($"Энергопотребление в пределах нормы {TotalConsumption()} / {SystemConsumptionLimit}");
+            Console.WriteLine("Система выключена");
         }
     }
 
@@ -205,6 +220,7 @@ public abstract class SmartHomeSystem : IMenuDisplayable //
     public void ShowSystemStatus()
     {
         Console.Clear();
+        Console.WriteLine(isOnSystem ? "Система включена" : "Система выключена");
         Console.WriteLine($"Всего модулей в системе: {Modules.Count}");
         float currentConsumption = TotalConsumption();
         Console.WriteLine(
@@ -219,8 +235,9 @@ public abstract class SmartHomeSystem : IMenuDisplayable //
     public void ShowInfo()
     {
         Console.Clear();
-        Console.WriteLine($"Производитель: {Brand}\nИмя: {Name}\nСерийный номер: {SerialNumber}\nОграничение: {SystemConsumptionLimit}\nмаксимальное количество модулей: {maxModulesQuantity}");
-
+        Console.WriteLine(isOnSystem ? "Система включена" : "Система выключена");
+        Console.WriteLine(
+            $"Производитель: {Brand}\nИмя: {Name}\nСерийный номер: {SerialNumber}\nОграничение: {SystemConsumptionLimit}\nмаксимальное количество модулей: {maxModulesQuantity}");
     }
 
     // показать список модулей
@@ -246,6 +263,25 @@ public abstract class SmartHomeSystem : IMenuDisplayable //
         else
         {
             Console.WriteLine("Модулей не найдено!");
+        }
+    }
+
+    //Выключение системы // Заглушка
+
+    public void SystemPowerOnOff()
+    {
+        if (isOnSystem)
+        {
+            isOnSystem = false;
+            Console.WriteLine("Система выключена");
+            CheckConsumption();
+        }
+
+        if (!isOnSystem)
+        {
+            isOnSystem = true;
+            Console.WriteLine("Сисьема включена");
+            CheckConsumption();
         }
     }
 
@@ -280,24 +316,26 @@ public abstract class SmartHomeSystem : IMenuDisplayable //
                     $"\t{i + 1}. Имя модуля: {Modules[i].Name} | Тип: {Modules[i].Type} | Максимальное потребление: {Modules[i].MaxConsumption} | " +
                     $"Текущее энергопотребление {Modules[i].CurrentConsumption} | ");
             }
+
             Console.WriteLine("_________________");
             Console.WriteLine("Текущие модули в тестовой системе: ");
             if (Tester.TestModules.Count == 0)
             {
                 Console.WriteLine("Тестовых модулей не найдено");
             }
+
             for (int i = 0; i < Tester.TestModules.Count; i++)
             {
-                if (Tester.TestModules[i] != null )
+                if (Tester.TestModules[i] != null)
                 {
                     Console.WriteLine(
                         $"\t{i + 1}. Имя модуля: {Tester.TestModules[i].Name} | Тип: {Tester.TestModules[i].Type} | Максимальное потребление: {Tester.TestModules[i].MaxConsumption} | " +
                         $"Текущее энергопотребление {Tester.TestModules[i].CurrentConsumption} | ");
                 }
-                
             }
+
             Console.WriteLine("_________________");
-            
+
             Console.WriteLine("\n1. \tПоказать доступные модули" +
                               "\n2. \tДобавить модуль в систему" +
                               "\n3. \tУдалить модуль из системы" +
@@ -342,7 +380,8 @@ public abstract class SmartHomeSystem : IMenuDisplayable //
                     ShowInfo();
                     break;
                 case "9":
-                    Console.WriteLine("Выключить систему"); //
+                    Console.WriteLine("Выключить - выключить систему"); //
+                    SystemPowerOnOff();
                     break;
             }
 

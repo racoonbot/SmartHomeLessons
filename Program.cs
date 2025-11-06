@@ -22,7 +22,7 @@ namespace Test
                     selectedSystem.Tester = new Tester(selectedSystem);
                     break;
                 case "2":
-                    selectedSystem = new AmazonAlexa("Amazon", "Умный дом от Amazon", "444", 12000,null);
+                    selectedSystem = new AmazonAlexa("Amazon", "Умный дом от Amazon", "444", 12000, null);
                     selectedSystem.Tester = new Tester(selectedSystem);
                     break;
                 case "3":
@@ -32,21 +32,25 @@ namespace Test
             }
 
 
-            Console.WriteLine(
-                "\n1. Показать меню" +
-                "\n2. Показать общую информацию о выбранной системе" +
-                "\n3. Выход");
-            string input2 = Console.ReadLine();
-            switch (input2)
+            while (true)
             {
-                case "1":
-                    selectedSystem.ShowMenu();
-                    break;
-                case "2":
-                    selectedSystem.ShowInfo();
-                    break;
-                case "3":
-                    break;
+                Console.WriteLine(
+                    "\n1. Показать меню" +
+                    "\n2. Показать общую информацию о выбранной системе" +
+                    "\n3. Выход");
+                string input2 = Console.ReadLine();
+                switch (input2)
+                {
+                    case "1":
+                        selectedSystem.ShowMenu();
+                        break;
+                    case "2":
+                        selectedSystem.ShowInfo();
+
+                        break;
+                    case "3":
+                        break;
+                }
             }
         }
     }
